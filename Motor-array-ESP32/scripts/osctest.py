@@ -5,6 +5,7 @@ from nicegui import ui
 rows = 5
 cols = 5
 mot_array = [0] * (rows*cols)
+light = [0, 0]
 
 def new_OSC_client(ip, port):
     parser = argparse.ArgumentParser()
@@ -27,6 +28,14 @@ def send_all(speed):
 def set_all(val):
     for mot in mot_array:
         mot_array[mot] = val.value
+def set_light_freq(val):
+    light[0] = val.value
+    print(light)
+    client_LEDs.send_message("/LED", light)
+def set_light_duty(val):
+    light[1] = val.value
+    print(light)
+    client_LEDs.send_message("/LED", light)
 def send_big(speed):
     client_bigmot.send_message("/bigmot", speed.value)
     time.sleep(1)
@@ -59,16 +68,16 @@ with ui.row().classes('w-[800px] h-[20%] justify-between border p-0 m-0'):
         ui.button('random', on_click=lambda pattern ="random": send_pattern(pattern), color="#EE4")
     with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
         ui.label('Big motor')
-        bigmot_slider = ui.slider(min=0, max=100, value=0)
+        bigmot_slider = ui.slider(min=0, max=100, value=0, on_change=send_big)
         ui.label().bind_text_from(bigmot_slider, 'value')
 with ui.row().classes('w-[800px] h-[500px] justify-between border p-0 m-0'):
     with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
         ui.label('Light Control - Frequency')
-        freq_slider = ui.slider(min=0, max=100, value=0)
+        freq_slider = ui.slider(min=0, max=100, value=0, on_change=set_light_freq)
         ui.label().bind_text_from(freq_slider, 'value')
     with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
         ui.label('Light Control - Duty Cycle')
-        duty_slider = ui.slider(min=0, max=100, value=0)
+        duty_slider = ui.slider(min=0, max=100, value=0, on_change=set_light_duty)
         ui.label().bind_text_from(duty_slider, 'value')
 
 ui.run()
