@@ -22,7 +22,6 @@ constexpr uint16_t knob_val_max = 4085;
 #define NUM_SERVOS_B1 6
 #define NUM_SERVOS (NUM_SERVOS_B0 + NUM_SERVOS_B1)
 
-
 // motor array
 int motor_array[NUM_SERVOS_B0 + NUM_SERVOS_B1] = {};
 
@@ -47,36 +46,27 @@ Motor motor_set[NUM_SERVOS_B0 + NUM_SERVOS_B1];
 
 void initialize_motors()
 {
-    for (int mot_id = 0; mot_id < NUM_SERVOS_B0; ++mot_id)
-    {
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B0; ++mot_id){
         pwm_b0.setPWM(mot_id, 0, SERVO_PULSE_MIN);
     }
-    for (int mot_id = 0; mot_id < NUM_SERVOS_B1; ++mot_id)
-    {
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B1; ++mot_id){
         pwm_b1.setPWM(mot_id, 0, SERVO_PULSE_MIN);
     }
 }
 
-void set_all_motors(const uint32_t microsec)
-{
-    for (int mot_id = 0; mot_id < NUM_SERVOS_B0; ++mot_id)
-    {
+void set_all_motors(const uint32_t microsec){
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B0; ++mot_id){
         pwm_b0.writeMicroseconds(mot_id, microsec);
     }
-    for (int mot_id = 0; mot_id < NUM_SERVOS_B1; ++mot_id)
-    {
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B1; ++mot_id){
         pwm_b1.writeMicroseconds(mot_id, microsec);
     }
 }
 
-void set_motor_microsec(const uint8_t board_index, const uint8_t motor_index, uint32_t microsec)
-{
-    if (board_index == 0)
-    {
+void set_motor_microsec(const uint8_t board_index, const uint8_t motor_index, uint32_t microsec){
+    if (board_index == 0){
         pwm_b0.writeMicroseconds(motor_index, microsec);
-    }
-    else if (board_index == 1)
-    {
+    }else if (board_index == 1){
         pwm_b1.writeMicroseconds(motor_index, microsec);
     }
 }
@@ -103,37 +93,25 @@ void on_motor_set_array(const OscMessage& m) {
     Serial.print(m.address());
     Serial.print(" ");
 
-    for (size_t ind = 0; ind < m.size(); ++ind)
-    {
+    for (size_t ind = 0; ind < m.size(); ++ind){
         const int mot_val = m.arg<int>(ind);
         int mot_index = ind;
         int board_index = -1;
-
         int mot_microsec = USMIN;
-        if (mot_val == 2)
-        {
+        if (mot_val == 2){
             mot_microsec = 1200;
-        }
-        else if (mot_val == 3)
-        {
+        }else if (mot_val == 3){
             mot_microsec = 1400;
-        }
-        else if (mot_val == 4)
-        {
+        }else if (mot_val == 4){
             mot_microsec = 1600;
-        }
-        else if (mot_val == 5)
-        {
+        }else if (mot_val == 5){
             mot_microsec = 2000;
         }
 
-        if (ind < NUM_SERVOS_B0)
-        {
+        if (ind < NUM_SERVOS_B0){
             board_index = 0;
             pwm_b0.writeMicroseconds(mot_index, mot_microsec);
-        }
-        else if (ind < (NUM_SERVOS_B0 + NUM_SERVOS_B1))
-        {
+        } else if (ind < (NUM_SERVOS_B0 + NUM_SERVOS_B1)) {
             board_index = 1;
             mot_index = ind - NUM_SERVOS_B0;
             pwm_b1.writeMicroseconds(mot_index, mot_microsec);
@@ -152,27 +130,17 @@ void on_motor_set_all(const OscMessage& m) {
     Serial.print(" ");
 
     const int mot_val = m.arg<int>(0);
-    if (mot_val == 1)
-    {
+    if (mot_val == 1) {
         set_all_motors(USMIN);
-    }
-    else if (mot_val == 2)
-    {
+    } else if (mot_val == 2){
         set_all_motors(1050);
-    }
-    else if (mot_val == 3)
-    {
+    } else if (mot_val == 3) {
         set_all_motors(1100);
-    }
-    else if (mot_val == 4)
-    {
+    } else if (mot_val == 4) {
         set_all_motors(1200);
-    }
-    else if (mot_val == 5)
-    {
+    } else if (mot_val == 5){
         set_all_motors(1500);
     }
-
     Serial.print(mot_val);
     Serial.print(" ");
     Serial.println();
@@ -223,7 +191,6 @@ void setup(){
 
 void loop(){
     OscWiFi.update();
-
     // read knob
     // const uint16_t knob_read_raw = analogRead(knob_pin);
     // const uint16_t knob_read_val = constrain(knob_read_raw, knob_val_min, knob_val_max);
@@ -232,25 +199,6 @@ void loop(){
 
     // debug : show
     // Serial.println(microsec);
-
-    // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
-    // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior.
-
-    // for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
-    //     for (int mot_id = 0; mot_id < NUM_SERVOS; ++mot_id)
-    //     {
-    //         pwm.writeMicroseconds(mot_id, microsec);
-    //     }
-    // }
-
-    // delay(500);
-    // for (uint16_t microsec = USMAX; microsec > USMIN; microsec--) {
-    //     for (int mot_id = 0; mot_id < NUM_SERVOS; ++mot_id)
-    //     {
-    //         pwm.writeMicroseconds(mot_id, microsec);
-    //     }
-    // }
-
 }
 
 void setup_motors(){

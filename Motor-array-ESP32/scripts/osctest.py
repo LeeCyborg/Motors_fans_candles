@@ -50,6 +50,7 @@ for i in range(rows):
 ui.button('Send Full Grid Pattern', on_click=send_grid)
 ui.label('Set all')
 setall = ui.toggle([1, 2, 3,4,5], value=1, on_change=send_all)
+ui.button('Take Snapshot', on_click=send_grid)
 ui.label('Set Patterns')
 with ui.row():
     ui.button('wave', on_click=lambda pattern ="wave": send_pattern(pattern),color="#EE4" )
@@ -58,6 +59,7 @@ with ui.row():
 
 with ui.row():
     ui.label('Big motor')
+    slider = ui.slider(min=0, max=100, value=50)
+    ui.label().bind_text_from(slider, 'value')
     bigmotor = ui.toggle([1, 2, 3, 4, 5], value=1, on_change=send_big)
 ui.run()
-
