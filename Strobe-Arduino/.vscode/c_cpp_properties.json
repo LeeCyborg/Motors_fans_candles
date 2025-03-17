@@ -1,0 +1,56 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Strobe-Arduino/src",
+                "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Strobe-Arduino/.pio/libdeps/uno/TimerOne",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/variants/standard",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Strobe-Arduino/src",
+                    "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Strobe-Arduino/.pio/libdeps/uno/TimerOne",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/Users/lee/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60118",
+                "ARDUINO_AVR_UNO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++11",
+            "compilerPath": "/Users/lee/.platformio/packages/toolchain-atmelavr@1.70300.191015/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
