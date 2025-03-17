@@ -5,8 +5,10 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <ArduinoOSCWiFi.h>
 
-// Analog read pin for frequency
-const int freq_pot = A3;
+// Analog read pin for speed
+constexpr uint8_t knob_pin = 33;
+constexpr uint16_t knob_val_min = 10;
+constexpr uint16_t knob_val_max = 4085;
 
 // timings
 #define SERVO_FREQ 50            // Analog servos run at ~50 Hz updates
@@ -17,38 +19,140 @@ const int freq_pot = A3;
 #define SERVO_PULSE_MIN 204 // This is the 'minimum' pulse length count (out of 4096)
 #define SERVO_PULSE_MAX 410 // This is the 'maximum' pulse length count (out of 4096)
 
-// number of servos
-#define NUM_SERVOS 3
+#define NUM_SERVOS_B0 16
+#define NUM_SERVOS_B1 6
+#define NUM_SERVOS (NUM_SERVOS_B0 + NUM_SERVOS_B1)
 
-// motor array state
-int motor_enable[NUM_SERVOS] = {};
+// motor array
+int motor_array[NUM_SERVOS_B0 + NUM_SERVOS_B1] = {};
 
-#define OSC_ONLY
+// objects - servo breakout boards
+Adafruit_PWMServoDriver pwm_b0 = Adafruit_PWMServoDriver(PCA9685_I2C_ADDRESS);
+Adafruit_PWMServoDriver pwm_b1 = Adafruit_PWMServoDriver(0x41);
 
-// objects - servo
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
+// network wifi
 constexpr char *ssid = "Gul De Sac";
 constexpr char *password = "D33pSpac39";
 constexpr int bind_port = 8888;
 
-void on_motor_enable(const OscMessage& m) {
+// Motor utility functions
+
+void initialize_motors()
+{
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B0; ++mot_id)
+    {
+        pwm_b0.setPWM(mot_id, 0, SERVO_PULSE_MIN);
+    }
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B1; ++mot_id)
+    {
+        pwm_b1.setPWM(mot_id, 0, SERVO_PULSE_MIN);
+    }
+}
+
+void set_all_motors(const uint32_t microsec)
+{
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B0; ++mot_id)
+    {
+        pwm_b0.writeMicroseconds(mot_id, microsec);
+    }
+    for (int mot_id = 0; mot_id < NUM_SERVOS_B1; ++mot_id)
+    {
+        pwm_b1.writeMicroseconds(mot_id, microsec);
+    }
+}
+
+void set_motor_microsec(const uint8_t board_index, const uint8_t motor_index, uint32_t microsec)
+{
+    if (board_index == 0)
+    {
+        pwm_b0.writeMicroseconds(motor_index, microsec);
+    }
+    else if (board_index == 1)
+    {
+        pwm_b1.writeMicroseconds(motor_index, microsec);
+    }
+}
+
+// OSC Callbacks
+
+void on_motor_set_array(const OscMessage& m) {
     Serial.print(m.remoteIP());
     Serial.print(" ");
     Serial.print(m.address());
     Serial.print(" ");
+
     for (size_t ind = 0; ind < m.size(); ++ind)
     {
-        if (ind < NUM_SERVOS)
+        const int mot_val = m.arg<int>(ind);
+        int mot_index = ind;
+        int board_index = -1;
+
+        int mot_microsec = USMIN;
+        if (mot_val == 2)
         {
-            motor_enable[ind] = m.arg<int>(ind);
+            mot_microsec = 1200;
+        }
+        else if (mot_val == 3)
+        {
+            mot_microsec = 1400;
+        }
+        else if (mot_val == 4)
+        {
+            mot_microsec = 1600;
+        }
+        else if (mot_val == 5)
+        {
+            mot_microsec = 2000;
         }
 
-        Serial.print(ind);
-        Serial.print(":");
-        Serial.print(m.arg<int>(ind));
+        if (ind < NUM_SERVOS_B0)
+        {
+            board_index = 0;
+            pwm_b0.writeMicroseconds(mot_index, mot_microsec);
+        }
+        else if (ind < (NUM_SERVOS_B0 + NUM_SERVOS_B1))
+        {
+            board_index = 1;
+            mot_index = ind - NUM_SERVOS_B0;
+            pwm_b1.writeMicroseconds(mot_index, mot_microsec);
+        }
+
+        Serial.print(mot_val);
         Serial.print(" ");
     }
+    Serial.println();
+}
+
+void on_motor_set_all(const OscMessage& m) {
+    Serial.print(m.remoteIP());
+    Serial.print(" ");
+    Serial.print(m.address());
+    Serial.print(" ");
+
+    const int mot_val = m.arg<int>(0);
+    if (mot_val == 1)
+    {
+        set_all_motors(USMIN);
+    }
+    else if (mot_val == 2)
+    {
+        set_all_motors(1050);
+    }
+    else if (mot_val == 3)
+    {
+        set_all_motors(1100);
+    }
+    else if (mot_val == 4)
+    {
+        set_all_motors(1200);
+    }
+    else if (mot_val == 5)
+    {
+        set_all_motors(1500);
+    }
+
+    Serial.print(mot_val);
+    Serial.print(" ");
     Serial.println();
 }
 
@@ -73,56 +177,55 @@ void setup()
         delay(1000);
     }
     delay(500);
-    Serial.println(WiFi.localIP());
+    Serial.println("Connected!");
+    Serial.print(WiFi.localIP());
+    Serial.print(":");
+    Serial.println(bind_port);
 
     // subscribe osc packet and directly bind to variable
-    OscWiFi.subscribe(bind_port, "/mot/enable", on_motor_enable);
+    OscWiFi.subscribe(bind_port, "/mot/setarr", on_motor_set_array);
+    OscWiFi.subscribe(bind_port, "/mot/setall", on_motor_set_all);
     OscWiFi.subscribe(bind_port, "/mot/mode", on_motor_mode);
 
-#ifndef OSC_ONLY
     // Servo setup
-    if (!pwm.begin())
+    const bool b0_ok = pwm_b0.begin();
+    const bool b1_ok = pwm_b1.begin();
+    // do not continue if failed to initialize
+    if (!b0_ok || !b1_ok)
     {
-        while(true)
-        {
-            Serial.println("Failed to initialize i2c servo breakout");
-            delay(2000);
-        }
+        Serial.println("Failed to initialize i2c servo breakout");
     }
-    // for servo example see https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library/blob/master/examples/servo/servo.ino
-    // pwm.setOscillatorFrequency(27000000);
-    pwm.setPWMFreq(SERVO_FREQ); // Analog servos run at ~50 Hz updates
+    else
+    {
+        // Set base servo frequency
+        pwm_b0.setPWMFreq(SERVO_FREQ); // Analog servos run at ~50 Hz updates
+        pwm_b1.setPWMFreq(SERVO_FREQ); // Analog servos run at ~50 Hz updates
 
-    for (int mot_id = 0; mot_id < NUM_SERVOS; ++mot_id)
-    {
-        pwm.setPWM(mot_id, 0, SERVO_PULSE_MIN);
+        // start at 0 for all motors
+        initialize_motors();
     }
+
     delay(1000);
-#endif
 
 }
 
+
 void loop()
 {
-    // int input = map(analogRead(POT_PIN), 10, 1000, USMIN, USMAX);
-    // int pulse = constrain(input, USMIN, USMAX);
-    // pwm.writeMicroseconds(SERVO_ID0, pulse);
-    // delay(100);
+    OscWiFi.update();
 
-    #ifndef OSC_ONLY
-    const int read_freq = map(analogRead(freq_pot), 10, 1000, USMIN, USMAX);
-    const int microsec = constrain(read_freq, USMIN, USMAX);
+    // read knob
+    // const uint16_t knob_read_raw = analogRead(knob_pin);
+    // const uint16_t knob_read_val = constrain(knob_read_raw, knob_val_min, knob_val_max);
+    // const uint32_t microsec = map(knob_read_val, knob_val_min, knob_val_max, USMIN, USMAX);
+    // set_all_motors(microsec);
 
-    for (int mot_id = 0; mot_id < NUM_SERVOS; ++mot_id)
-    {
-        pwm.writeMicroseconds(mot_id, microsec);
-    }
-    #endif
-
-    OscWiFi.update(); // should be called
+    // debug : show
+    // Serial.println(microsec);
 
     // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
     // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior.
+
     // for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
     //     for (int mot_id = 0; mot_id < NUM_SERVOS; ++mot_id)
     //     {
