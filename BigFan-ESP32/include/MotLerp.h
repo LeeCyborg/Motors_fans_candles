@@ -15,11 +15,11 @@ public:
     }
 
 private:
-    int m_current = 1000;
-    int m_target = 1000;
+    int m_current = 0;
+    int m_target = 0;
 
-    int m_min_val = 1000;
-    int m_max_val = 2000;
+    int m_min_val = 0;
+    int m_max_val = 4095;
     int m_step = 10;
 };
 

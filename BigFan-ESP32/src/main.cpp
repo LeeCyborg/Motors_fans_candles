@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <ArduinoOSCWiFi.h>
+#include "MotLerp.h"
 
 // ===== CONFIGURE PINS =====
 // ==========================
@@ -33,6 +34,10 @@ constexpr int bind_port = 8888;
 uint32_t timer_prev = 0;
 constexpr uint32_t timer_delta = 50000U;
 
+// motor lerp
+MotLerp motlerp = {};
+
+// motor lerp
 void on_motor_set(const OscMessage& m) {
     Serial.print(m.remoteIP());
     Serial.print(" ");
@@ -42,6 +47,7 @@ void on_motor_set(const OscMessage& m) {
     int speed_preset = m.arg<int>(0);
     speed_preset = constrain(speed_preset, 0, 100);
     const uint32_t target_duty = map(speed_preset, 0, 100, 0, pwm_duty_max);
+    motlerp.set_target(target_duty);
 
     Serial.print(speed_preset);
     Serial.print(" ");
@@ -64,6 +70,17 @@ static void IRAM_ATTR tacho_time_isr()
     tacho_time = tacho_trip_time;
 }
 
+void enable_tacho(void)
+{
+    // Set tacho pin as input
+    pinMode(feedback_tacho_pin, INPUT);
+    // initial values
+    tacho_time = micros();
+    // attach
+    attachInterrupt(feedback_tacho_pin, tacho_time_isr, RISING);
+    // vTaskDelete(NULL);
+}
+
 // read tacho
 uint32_t read_tacho_rpm()
 {
@@ -77,17 +94,6 @@ uint32_t read_tacho_rpm()
         return 60000000U / delta;
     }
 }
-
-// void enable_tacho_task(void * /* parameters */)
-// {
-//     // Set tacho pin as input
-//     pinMode(feedback_tacho_pin, INPUT);
-//     // initial values
-//     tacho_time = micros();
-//     // attach
-//     attachInterrupt(feedback_tacho_pin, tacho_time_isr, RISING);
-//     vTaskDelete(NULL);
-// }
 
 // ===== SETUP =====
 // =================
@@ -123,13 +129,6 @@ void setup()
     // initial 0 command
     ledcWrite(command_pwm_pin, 0);
 
-    // Set tacho pin as input
-    pinMode(feedback_tacho_pin, INPUT);
-    // initial values
-    tacho_time = micros();
-    // attach
-    attachInterrupt(feedback_tacho_pin, tacho_time_isr, RISING);
-
     // subscribe osc packet and directly bind to variable
     OscWiFi.subscribe(bind_port, "/bigmot/set", on_motor_set);
 
@@ -142,21 +141,23 @@ void setup()
 
 void loop()
 {
-    // read tacho feedback
-    uint32_t feedback_rpm = read_tacho_rpm();
+    OscWiFi.update();
 
-    // read knob
-    // const uint16_t knob_read_raw = analogRead(knob_pin);
-    // const uint16_t knob_read_val = constrain(knob_read_raw, knob_val_min, knob_val_max);
-    // const uint32_t command_pulse_duty = map(knob_read_val, knob_val_min, knob_val_max, 0, pwm_duty_max);
-
-    // set command
-    if (!ledcWrite(command_pwm_pin, command_pulse_duty));
+    const uint32_t now = micros();
+    if ((now - timer_prev) > timer_delta)
     {
-        Serial.println("Error: Failed to write to ledc");
+        timer_prev = now;
+
+        const int command_pulse_duty = motlerp.evaluate();
+        if (!ledcWrite(command_pwm_pin, command_pulse_duty));
+        {
+            // Serial.println("Error: Failed to write to ledc");
+        }
+
+        // read tacho feedback
+        // uint32_t feedback_rpm = read_tacho_rpm();
+        // Serial.print(command_pulse_duty);
+        // Serial.print(",");
+        // Serial.println(feedback_rpm);
     }
-    Serial.print(command_pulse_duty);
-    Serial.print(",");
-    Serial.println(feedback_rpm);
-    delay(200);
 }
