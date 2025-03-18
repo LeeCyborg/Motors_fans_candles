@@ -39,7 +39,7 @@ constexpr int bind_port = 8888;
 
 // timer
 uint32_t timer_prev = 0;
-constexpr uint32_t timer_delta = 20000U;
+constexpr uint32_t timer_delta = 50000U;
 
 struct Motor {
     bool enable = false;
