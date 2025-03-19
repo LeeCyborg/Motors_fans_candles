@@ -53,12 +53,22 @@ struct Motor {
 // array holding all motor data
 Motor motor_set[NUM_SERVOS];
 
+// offset to make all motors spin at similar speeds
+constexpr int motor_offsets[NUM_SERVOS] = {
+    0, 0, 0, 0,
+    0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+};
+
 // call this once during setup after initializing pwm boards
 void setup_motors() {
     for(int i = 0; i < NUM_SERVOS; i++) {
         motor_set[i].enable = true;
         motor_set[i].id = i;
-        motor_set[i].offset = 0;
+        motor_set[i].offset = motor_offsets[i];
         motor_set[i].lerp.reset(1000);
         if (i < NUM_SERVOS_B0) {
             motor_set[i].index = i;
@@ -90,20 +100,21 @@ void set_all_motors(const int microsec)
     }
 }
 
-int speed_preset_to_microsec(const int preset)
-{
-    int mot_microsec = 1000;
-    if (preset == 2) {
-        mot_microsec = 1200;
-    } else if (preset == 3) {
-        mot_microsec = 1400;
-    } else if (preset == 4) {
-        mot_microsec = 1600;
-    } else if (preset == 5) {
-        mot_microsec = 2000;
-    }
-    return mot_microsec;
-}
+// // preset number to microseconds
+// int speed_preset_to_microsec(const int preset)
+// {
+//     int mot_microsec = 1000;
+//     if (preset == 2) {
+//         mot_microsec = 1200;
+//     } else if (preset == 3) {
+//         mot_microsec = 1400;
+//     } else if (preset == 4) {
+//         mot_microsec = 1600;
+//     } else if (preset == 5) {
+//         mot_microsec = 2000;
+//     }
+//     return mot_microsec;
+// }
 
 // OSC Callbacks
 // void make_wave(const OscMessage& m){
@@ -128,11 +139,16 @@ void on_motor_set_array(const OscMessage& m) {
     Serial.print(" ");
 
     for (size_t ind = 0; ind < m.size(); ++ind) {
-        const int speed_preset = m.arg<int>(ind);
-        const int mot_microsec = speed_preset_to_microsec(speed_preset);
+        int speed_percent = m.arg<int>(ind);
+        if (speed_percent > 0)
+        {
+            speed_percent = speed_percent + motor_set[ind].offset;
+        }
+        speed_percent = constrain(speed_percent, 0, 100);
+        const int mot_microsec = map(speed_percent, 0, 100, USMIN, USMAX);
         motor_set[ind].lerp.set_target(mot_microsec);
 
-        Serial.print(speed_preset);
+        Serial.print(speed_percent);
         Serial.print(" ");
     }
     Serial.println();
@@ -144,12 +160,12 @@ void on_motor_set_all(const OscMessage& m) {
     Serial.print(m.address());
     Serial.print(" ");
 
-    int speed_preset = m.arg<int>(0);
-    speed_preset = constrain(speed_preset, 0, 100);
-    const int mot_microsec = map(speed_preset, 0, 100, USMIN, USMAX);
+    int speed_percent = m.arg<int>(0);
+    speed_percent = constrain(speed_percent, 0, 100);
+    const int mot_microsec = map(speed_percent, 0, 100, USMIN, USMAX);
     set_all_motors(mot_microsec);
 
-    Serial.print(speed_preset);
+    Serial.print(speed_percent);
     Serial.print(" ");
     Serial.println();
 }

@@ -9,11 +9,11 @@ constexpr uint32_t initial_period_micros = 1000000 / 50;
 constexpr unsigned int initial_duty = 5;
 
 // Strobe LED pin
-const int led = 15;
+const int led = 9;
 // Analog read pin for frequency
-const int freq_pot = 33;
+const int freq_pot = A4;
 // Analog read pin for ON duration (duty cycle)
-const int duty_pot = 35;
+const int duty_pot = A5;
 
 // frequency configuration
 // scaled frequency from pot between 0 and 100
