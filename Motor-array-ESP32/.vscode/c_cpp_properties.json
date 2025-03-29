@@ -8,6 +8,7 @@
         {
             "name": "PlatformIO",
             "includePath": [
+                "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/include",
                 "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/src",
                 "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/.pio/libdeps/esp32dev/ArduinoOSC",
                 "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/.pio/libdeps/esp32dev/DebugLog",
@@ -250,6 +251,7 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
+                    "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/include",
                     "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/src",
                     "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/.pio/libdeps/esp32dev/ArduinoOSC",
                     "/Users/lee/Documents/GitHub/motor_array/Motors_fans_candles/Motor-array-ESP32/.pio/libdeps/esp32dev/DebugLog",

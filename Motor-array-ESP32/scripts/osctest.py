@@ -62,28 +62,27 @@ for i in range(rows):
             motid = (j*rows)+i
             print(motid)
             ui.label(f'Motor {motid}')
-            toggle1 = ui.toggle([1, 2, 3, 4, 5], value=1, on_change=lambda e, id=motid : motorValue(e, id))
+            toggle1 = ui.toggle([0, 2, 3, 4, 5], value=0, on_change=lambda e, id=motid : motorValue(e, id))
 ui.button('Send Full Grid Pattern', on_click=send_grid)
 with ui.row().classes('w-[800px] h-[20%] justify-between border p-0 m-0'):
     with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
         ui.label('Set all at once')
-        setall = ui.toggle([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ], value=10, on_change=send_all)
+        setall = ui.toggle([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ], value=0, on_change=send_all)
         #setall = ui.slider(min=0, max=100, value=0, on_change=send_all)
         ui.label().bind_text_from(setall, 'value')
-    with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
-        ui.button('Take Snapshot', on_click=compute)
-        snapshot = ui.label()
-with ui.row().classes('w-[800px] h-[20%] justify-between border p-0 m-0'):
-    with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
-        ui.label('Set Patterns')
-        ui.button('wave', on_click=lambda pattern ="wave": send_pattern(pattern),color="#EE4" )
-        ui.button('stripes', on_click=lambda pattern ="stripes": send_pattern(pattern), color="#EE4")
-        ui.button('random', on_click=lambda pattern ="random": send_pattern(pattern), color="#EE4")
-    with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
-        ui.label('Big motor')
-        bigmot_slider = ui.toggle([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], value=0, on_change=send_big)
+with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
+    ui.button('Take Snapshot', on_click=compute)
+    snapshot = ui.label()
+with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
+    ui.label('Set Patterns')
+    ui.button('wave', on_click=lambda pattern ="wave": send_pattern(pattern),color="#EE4" )
+    ui.button('stripes', on_click=lambda pattern ="stripes": send_pattern(pattern), color="#EE4")
+    ui.button('random', on_click=lambda pattern ="random": send_pattern(pattern), color="#EE4")
+with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
+    ui.label('Big motor')
+    bigmot_slider = ui.toggle([0, 5, 7, 10, 13, 15, 17, 20, 23, 25, 30, 40, 50, 60, 70, 80, 90, 100], value=0, on_change=send_big)
         #bigmot_slider = ui.slider(min=0, max=100, value=0, on_change=send_big)
-        ui.label().bind_text_from(bigmot_slider, 'value')
+    ui.label().bind_text_from(bigmot_slider, 'value')
 with ui.row().classes('w-[800px] h-[500px] justify-between border p-0 m-0'):
     with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
         ui.label('Light Control - Frequency')
