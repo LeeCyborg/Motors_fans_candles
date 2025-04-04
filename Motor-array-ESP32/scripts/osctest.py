@@ -83,17 +83,20 @@ with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
     bigmot_slider = ui.toggle([0, 5, 7, 10, 13, 15, 17, 20, 23, 25, 30, 40, 50, 60, 70, 80, 90, 100], value=0, on_change=send_big)
         #bigmot_slider = ui.slider(min=0, max=100, value=0, on_change=send_big)
     ui.label().bind_text_from(bigmot_slider, 'value')
-with ui.row().classes('w-[800px] h-[500px] justify-between border p-0 m-0'):
-    with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
-        ui.label('Light Control - Frequency')
-        freq_slider = ui.slider(min=0, max=1000, value=0, on_change=set_light_freq)
-        ui.label().bind_text_from(freq_slider, 'value')
-    with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
-        ui.label('Light Control - Duty Cycle')
-        duty_slider = ui.slider(min=0, max=1000, value=0, on_change=set_light_duty)
-        ui.label().bind_text_from(duty_slider, 'value')
+# with ui.row().classes('w-[800px] h-[500px] justify-between border p-0 m-0'):
+with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
+    ui.label('Light Control - Frequency in Hz')
+    freq_slider = ui.toggle([20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70,75,80,85,90,95,100], value=20, on_change=set_light_freq)
+    # freq_slider = ui.slider(min=0, max=100, value=0, on_change=set_light_freq)
+    ui.label().bind_text_from(freq_slider, 'value')
+with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
+    ui.label('Light Control - Duty Cycle in %')
+    duty_slider = ui.toggle([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70,75,80,85,90,95,100], value=0, on_change=set_light_duty)
+
+        # duty_slider = ui.slider(min=0, max=100, value=0, on_change=set_light_duty)
+    ui.label().bind_text_from(duty_slider, 'value')
 
 ui.run()
 client_mots = new_OSC_client("10.0.0.66", 8888) #10.0.0.67 small motor
 client_bigmot = new_OSC_client("10.0.0.194", 8888)
-client_LEDs = new_OSC_client("10.0.0.136", 8888)
+client_LEDs = new_OSC_client("10.0.0.156", 8888)
