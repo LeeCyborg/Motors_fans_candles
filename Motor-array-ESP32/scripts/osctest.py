@@ -62,7 +62,7 @@ for i in range(rows):
             motid = (j*rows)+i
             print(motid)
             ui.label(f'Motor {motid}')
-            toggle1 = ui.toggle([0, 2, 3, 4, 5], value=0, on_change=lambda e, id=motid : motorValue(e, id))
+            toggle1 = ui.toggle([0, 30, 50, 70, 100], value=0, on_change=lambda e, id=motid : motorValue(e, id))
 ui.button('Send Full Grid Pattern', on_click=send_grid)
 with ui.row().classes('w-[800px] h-[20%] justify-between border p-0 m-0'):
     with ui.row().classes('w-[48%] h-[20%] border p-0 m-0'):
@@ -94,6 +94,6 @@ with ui.row().classes('w-[800px] h-[500px] justify-between border p-0 m-0'):
         ui.label().bind_text_from(duty_slider, 'value')
 
 ui.run()
-client_mots = new_OSC_client("10.0.0.67", 8888) #10.0.0.67 small motor
-client_bigmot = new_OSC_client("10.0.0.195", 8888)
+client_mots = new_OSC_client("10.0.0.66", 8888) #10.0.0.67 small motor
+client_bigmot = new_OSC_client("10.0.0.194", 8888)
 client_LEDs = new_OSC_client("10.0.0.136", 8888)
