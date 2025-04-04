@@ -26,8 +26,8 @@ constexpr uint32_t pwm_duty_max = 4095;
 // =====================
 
 // network wifi
-constexpr char *ssid = "Gul De Sac";
-constexpr char *password = "D33pSpac39";
+constexpr char *ssid = "MirrorMotors";
+constexpr char *password = "StrobeMotorArray";
 constexpr int bind_port = 8888;
 
 // timer

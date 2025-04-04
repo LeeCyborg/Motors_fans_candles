@@ -13,7 +13,8 @@ constexpr uint16_t knob_val_min = 10;
 constexpr uint16_t knob_val_max = 4085;
 
 // timings
-#define SERVO_FREQ 50            // Analog servos run at ~50 Hz updates
+// Analog servos run at ~50 Hz updates
+#define SERVO_FREQ 50
 
 #define USMIN 1000
 #define USMAX 2000
@@ -29,12 +30,9 @@ constexpr uint16_t knob_val_max = 4085;
 Adafruit_PWMServoDriver pwm_b0 = Adafruit_PWMServoDriver(PCA9685_I2C_ADDRESS);
 Adafruit_PWMServoDriver pwm_b1 = Adafruit_PWMServoDriver(0x41);
 
-// mutex for pwm boards
-// portMUX_TYPE pwm_mutex = portMUX_INITIALIZER_UNLOCKED;
-
 // network wifi
-constexpr char *ssid = "Gul De Sac";
-constexpr char *password = "D33pSpac39";
+constexpr char *ssid = "MirrorMotors";
+constexpr char *password = "StrobeMotorArray";
 constexpr int bind_port = 8888;
 
 // timer
@@ -85,11 +83,9 @@ void setup_motors() {
 
 // call this every loop to update lerp and send out motor pwm
 void loop_motors() {
-    // portENTER_CRITICAL(&pwm_mutex);
     for (int index = 0; index < NUM_SERVOS; ++index) {
         motor_set[index].board->writeMicroseconds(motor_set[index].index, motor_set[index].lerp.evaluate());
     }
-    // portEXIT_CRITICAL(&pwm_mutex);
 }
 
 // set same lerp target for all motors
@@ -99,38 +95,6 @@ void set_all_motors(const int microsec)
         motor_set[index].lerp.set_target(microsec);
     }
 }
-
-// // preset number to microseconds
-// int speed_preset_to_microsec(const int preset)
-// {
-//     int mot_microsec = 1000;
-//     if (preset == 2) {
-//         mot_microsec = 1200;
-//     } else if (preset == 3) {
-//         mot_microsec = 1400;
-//     } else if (preset == 4) {
-//         mot_microsec = 1600;
-//     } else if (preset == 5) {
-//         mot_microsec = 2000;
-//     }
-//     return mot_microsec;
-// }
-
-// OSC Callbacks
-// void make_wave(const OscMessage& m){
-//     for (float pos = 0; pos < 2*PI; pos+0.1){
-//         float val = cos(pos);
-//         val = constrain(map(val, -1, 1, 1000, 2000), 1000, 2000);
-//         pwm_b1.writeMicroseconds(1, val);
-//         delay(100);
-//     }
-//     for (float pos = 2*PI; pos > 0; pos-0.1){
-//         float val = cos(pos);
-//         val = constrain(map(val, -1, 1, 1000, 2000), 1000, 2000);
-//         pwm_b1.writeMicroseconds(1, val);
-//         delay(100);
-//     }
-// }
 
 void on_motor_set_array(const OscMessage& m) {
     Serial.print(m.remoteIP());
@@ -227,12 +191,4 @@ void loop(){
         loop_motors();
     }
 
-    // read knob
-    // const uint16_t knob_read_raw = analogRead(knob_pin);
-    // const uint16_t knob_read_val = constrain(knob_read_raw, knob_val_min, knob_val_max);
-    // const uint32_t microsec = map(knob_read_val, knob_val_min, knob_val_max, USMIN, USMAX);
-    // set_all_motors(microsec);
-
-    // debug : show
-    // Serial.println(microsec);
 }

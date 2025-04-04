@@ -4,8 +4,8 @@
 
 #define PWM_PIN 4
 
-constexpr char *ssid = "Gul De Sac";
-constexpr char *password = "D33pSpac39";
+constexpr char *ssid = "MirrorMotors";
+constexpr char *password = "StrobeMotorArray";
 constexpr int bind_port = 8888;
 
 #define INPUT_MIN 0
